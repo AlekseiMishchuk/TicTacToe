@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Interfaces;
 using UnityEngine;
@@ -16,13 +15,13 @@ public class Board : MonoBehaviour, IBoard
 
     private void Awake()
     {
-        var count = 0;
+        var index = 0;
         for (var i = 0; i < _cells.GetLength(0); i++)
         {
             for (var j = 0; j < _cells.GetLength(1); j++)
             {
-                _cells[i, j] = _cellList[count];
-                count++;
+                _cells[i, j] = _cellList[index];
+                index++;
             }
         }
     }
@@ -43,75 +42,74 @@ public class Board : MonoBehaviour, IBoard
 
     private bool CheckLines(SymbolType symbol)
     {
-        var isRowSame = true;
-        var isColumnSame = true;
-        var rowWinCombination = new List<Cell>();
-        var columnWinCombination = new List<Cell>();
-        
         for (var i = 0; i < BoardSize; i++)
         {
+            var isRowMatching = true;
+            var isColumnMatching = true;
+            var winCombination = new List<Cell>();
+            
             for (var j = 0; j < BoardSize; j++)
             {
-                isRowSame = isRowSame && (_cells[i, j].Symbol == symbol);
-                isColumnSame = isColumnSame && (_cells[j, i].Symbol == symbol);
+                isRowMatching = isRowMatching && (_cells[i, j].Symbol == symbol);
+                isColumnMatching = isColumnMatching && (_cells[j, i].Symbol == symbol);
+
+                if (isRowMatching)
+                {
+                    winCombination.Add(_cells[i,j]);
+                }
+                else if (isColumnMatching)
+                {
+                    winCombination.Add(_cells[j,i]);
+                }
+            }
+            
+            if (isRowMatching)
+            {
+                _finalWinCombination = winCombination;
+                return true;
+            }
+            if (isColumnMatching)
+            {
+                _finalWinCombination = winCombination;
+                return true;
             }
         }
-        
-        if (isRowSame)
-        {
-            _finalWinCombination = rowWinCombination;
-            return true;
-        }
-        else if (isColumnSame)
-        {
-            _finalWinCombination = columnWinCombination;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return false;
     }
 
     private bool CheckDiagonal(SymbolType symbol)
     {
-        var isPrimaryDiagonalSame = true;
-        var isCounterDiagonalSame = true;
-        var primaryWinCombination = new List<Cell>();
-        var counterWinCombination = new List<Cell>();
-        
+        var isPrimaryMatching = true;
+        var isCounterMatching = true;
+        var primaryCombination = new List<Cell>();
+        var counterCombination = new List<Cell>();
+
         for (var i = 0; i < BoardSize; i++)
         {
-            var nextSymbol = _cells[i, i].Symbol;
-            if (isPrimaryDiagonalSame)
-            {
-                isPrimaryDiagonalSame = isPrimaryDiagonalSame && (nextSymbol == symbol);
-                primaryWinCombination.Add(_cells[i,i]);
-            }
-            
+            var primaryCell = _cells[i, i];
             var counterIndex = BoardSize - i - 1;
-            nextSymbol = _cells[counterIndex, counterIndex].Symbol;
-            if (isCounterDiagonalSame)
+            var counterCell = _cells[i, counterIndex];
+
+            isPrimaryMatching = primaryCell.Symbol == symbol && isPrimaryMatching;
+            isCounterMatching = counterCell.Symbol == symbol && isCounterMatching;
+            
+            if (isPrimaryMatching)
             {
-                isCounterDiagonalSame = isCounterDiagonalSame && (nextSymbol == symbol);
-                counterWinCombination.Add(_cells[counterIndex, counterIndex]);    
+                primaryCombination.Add(primaryCell);
+            }
+            if (isCounterMatching)
+            {
+                counterCombination.Add(counterCell);
+            }
+
+            if (!isPrimaryMatching && !isCounterMatching)
+            {
+                return false;
             }
         }
 
-        if (isPrimaryDiagonalSame)
-        {
-            _finalWinCombination = primaryWinCombination;
-            return true;
-        }
-        else if (isCounterDiagonalSame)
-        {
-            _finalWinCombination = counterWinCombination;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        _finalWinCombination = isPrimaryMatching ? primaryCombination : counterCombination;
+        return true;
     }
 
     

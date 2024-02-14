@@ -11,7 +11,6 @@ public class Cell : MonoBehaviour
     [SerializeField] private SpriteRenderer _background;
     public SymbolType Symbol { get; private set; }
 
-    public UnityEvent turnMade;
 
     public void SetSymbol(SymbolType symbol)
     {
@@ -39,6 +38,7 @@ public class Cell : MonoBehaviour
 
     public void Highlight()
     {
+        Debug.Log("Cell highlighted");
         var color = _highlight.color;
         color.a = 1;
         _highlight.color = color;
@@ -46,7 +46,14 @@ public class Cell : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (Symbol is SymbolType.Circle or SymbolType.Cross)
+        {
+            return;
+        }
+        
+        SetSymbol(GameManager.ActivePlayer.Symbol);
         _background.color = Color.gray;
+        EventManager.Invoke(Event.MoveMade);
     }
 
     private IEnumerable ClickAnimation()

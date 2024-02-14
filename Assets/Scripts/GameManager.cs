@@ -1,10 +1,14 @@
-using Interfaces;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private IBoard _board;
-    public static GameManager Instance { get; private set; }
+    [SerializeField] private Board _board;
+    
+    private static Player _player1;
+    private static Player _player2;
+    
+    public static Player ActivePlayer { get; private set; }
+    private static GameManager Instance { get; set; }
     
     private const string InitializedKey = "initialized";
 
@@ -23,8 +27,12 @@ public class GameManager : MonoBehaviour
     
     private void Start()
     {
-        gameObject.AddComponent<Player>().Initialization(SymbolType.Cross);
-        gameObject.AddComponent<Player>().Initialization(SymbolType.Cross);
+        _player1 = gameObject.AddComponent<Player>();
+        _player2 = gameObject.AddComponent<Player>();
+        _player1.Initialization(SymbolType.Cross);
+        _player2.Initialization(SymbolType.Circle);
+
+        ActivePlayer = _player1;
         
         if (PlayerPrefs.HasKey(InitializedKey))
         {
@@ -35,11 +43,24 @@ public class GameManager : MonoBehaviour
             _board.Initialization();
         }
         
-        SaveLoadService.SaveBoardState(_board);
+        EventManager.AddListener(Event.MoveMade, CheckWinConditions);
     }
 
-    public void MakeMove()
+    private static void CheckWinConditions()
     {
-        
+        if (Instance._board.WinConditions(ActivePlayer.Symbol))
+        {
+            Debug.Log($"{ActivePlayer.Symbol.GetType()} win");
+            Instance._board.HighlightWinCombination();
+        }
+        else
+        {
+            ChangePlayer();
+            SaveLoadService.SaveBoardState(Instance._board);
+        }
+    }
+    private static void ChangePlayer()
+    {
+        ActivePlayer = ActivePlayer == _player1 ? _player2 : _player1;
     }
 }
