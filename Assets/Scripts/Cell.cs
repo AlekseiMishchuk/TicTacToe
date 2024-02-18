@@ -1,7 +1,6 @@
-using System;
 using System.Collections;
+using Enums;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class Cell : MonoBehaviour
 {
@@ -53,18 +52,11 @@ public class Cell : MonoBehaviour
         
         SetSymbol(GameManager.ActivePlayer.Symbol);
         _background.color = Color.gray;
-        EventManager.Invoke(Event.MoveMade);
+        EventManager.Invoke(EventName.MoveMade);
     }
 
     private IEnumerable ClickAnimation()
     {
         yield return null;
     }
-}
-
-public enum SymbolType
-{
-    Empty,
-    Cross,
-    Circle
 }

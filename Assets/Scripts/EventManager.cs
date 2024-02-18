@@ -1,3 +1,5 @@
+using System;
+using Enums;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -6,23 +8,25 @@ public class EventManager : MonoBehaviour
 {
     private static EventManager Instance { get; set; }
 
-    private static Dictionary<Event, List<UnityAction>> _listeners;
+    private static Dictionary<EventName, List<UnityAction>> _listeners;
+    private static Dictionary<EventName, Dictionary<Type, List<Delegate>>> _listenersOneParam;
     
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(this);
-        }
-        else
+        if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            _listeners = new Dictionary<Event, List<UnityAction>>();
+            _listeners = new Dictionary<EventName, List<UnityAction>>();
+            _listenersOneParam = new Dictionary<EventName, Dictionary<Type, List<Delegate>>>();
+        }
+        else
+        {
+            Destroy(this);
         }
     }
 
-    public static void AddListener(Event invoker, UnityAction listener)
+    public static void AddListener(EventName invoker, UnityAction listener)
     {
         if (_listeners.ContainsKey(invoker))
         {
@@ -33,8 +37,25 @@ public class EventManager : MonoBehaviour
             _listeners.Add(invoker, new List<UnityAction> {listener});
         }
     }
+    
+    public static void AddListener<T>(EventName invoker, UnityAction<T> listener)
+    {
+        if (!_listenersOneParam.ContainsKey(invoker))
+        {
+            _listenersOneParam.Add(invoker, new Dictionary<Type, List<Delegate>>());
+        }
 
-    public static void RemoveListener(Event invoker, UnityAction listener)
+        var parameterType = listener.Method.GetParameters()[0].ParameterType;
+
+        if (!_listenersOneParam[invoker].ContainsKey(parameterType))
+        {
+            _listenersOneParam[invoker].Add(parameterType, new List<Delegate>());
+        }
+        
+        _listenersOneParam[invoker][parameterType].Add(listener);
+    }
+
+    public static void RemoveListener(EventName invoker, UnityAction listener)
     {
         if (!_listeners.ContainsKey(invoker))
         {
@@ -44,7 +65,18 @@ public class EventManager : MonoBehaviour
         _listeners[invoker].Remove(listener);
     }
 
-    public static void Invoke(Event invoker)
+    public static void RemoveListener<T>(EventName invoker, UnityAction<T> listener)
+    {
+        var parameterType = listener.Method.GetParameters()[0].ParameterType;
+        if (!_listenersOneParam.ContainsKey(invoker) || !_listenersOneParam[invoker].ContainsKey(parameterType))
+        {
+            return;
+        }
+
+        _listenersOneParam[invoker].Remove(parameterType);
+    }
+
+    public static void Invoke(EventName invoker)
     {
         if (!_listeners.ContainsKey(invoker))
         {
@@ -56,8 +88,20 @@ public class EventManager : MonoBehaviour
             listener.Invoke();
         }
     }
-}
-public enum Event
-{
-    MoveMade
+
+    public static void Invoke<T>(EventName invoker, T data)
+    {
+        var parameterType = typeof(T);
+        
+        if (!_listenersOneParam.ContainsKey(invoker) || !_listenersOneParam[invoker].ContainsKey(parameterType))
+        {
+            return;
+        }
+
+        foreach (var @delegate in _listenersOneParam[invoker][parameterType])
+        {
+            var listener = @delegate as UnityAction<T>;
+            listener?.Invoke(data);
+        }
+    }
 }

@@ -1,3 +1,4 @@
+using Enums;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -10,18 +11,18 @@ public class GameManager : MonoBehaviour
     public static Player ActivePlayer { get; private set; }
     private static GameManager Instance { get; set; }
     
-    private const string InitializedKey = "initialized";
+    private const string HasSavedData = "saved";
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(this);
-        }
-        else
+        if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(this);
         }
     }
     
@@ -34,7 +35,7 @@ public class GameManager : MonoBehaviour
 
         ActivePlayer = _player1;
         
-        if (PlayerPrefs.HasKey(InitializedKey))
+        if (PlayerPrefs.HasKey(HasSavedData))
         {
             SaveLoadService.LoadBoardState(_board);
         }
@@ -43,22 +44,26 @@ public class GameManager : MonoBehaviour
             _board.Initialization();
         }
         
-        EventManager.AddListener(Event.MoveMade, CheckWinConditions);
+        EventManager.AddListener(EventName.MoveMade, CheckGameOver);
     }
 
-    private static void CheckWinConditions()
+    private static void CheckGameOver()
     {
-        if (Instance._board.WinConditions(ActivePlayer.Symbol))
+        var moveResult = Instance._board.CheckMoveResult(ActivePlayer.Symbol);
+        if (moveResult != MoveResult.GameContinues)
         {
-            Debug.Log($"{ActivePlayer.Symbol.GetType()} win");
             Instance._board.HighlightWinCombination();
+            EventManager.Invoke(EventName.GameOver, moveResult);
+            PlayerPrefs.DeleteKey(HasSavedData);
         }
         else
         {
             ChangePlayer();
-            SaveLoadService.SaveBoardState(Instance._board);
+            SaveLoadService.SaveBoardState(Instance._board, ActivePlayer.Symbol);
+            PlayerPrefs.SetInt(HasSavedData, 1);
         }
     }
+    
     private static void ChangePlayer()
     {
         ActivePlayer = ActivePlayer == _player1 ? _player2 : _player1;

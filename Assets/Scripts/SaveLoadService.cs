@@ -1,12 +1,14 @@
 using System;
 using System.Text;
+using Enums;
 using Interfaces;
 using UnityEngine;
 
 public static class SaveLoadService
 {
-    private const string BoardStateKey = "boardState"; 
-    public static void SaveBoardState(IBoard board)
+    private const string BoardStateKey = "boardState";
+    private const string LastPlayerKey = "lastPlayerSymbol";
+    public static void SaveBoardState(IBoard board, SymbolType playerSymbol)
     {
         var cells = board.Cells; 
         var boardAsString = new StringBuilder();
@@ -32,6 +34,7 @@ public static class SaveLoadService
         }
         
         PlayerPrefs.SetString(BoardStateKey, boardAsString.ToString());
+        PlayerPrefs.SetInt(LastPlayerKey, (int)playerSymbol);
     }
 
     public static void LoadBoardState(IBoard board)
@@ -51,7 +54,7 @@ public static class SaveLoadService
             for (var j = 0; j < rowSymbols.Length; j++)
             {
                 int.TryParse(rowSymbols[j], out var symbolInt);
-                if (Enum.IsDefined(typeof(SymbolType), rowSymbols[j]))
+                if (Enum.IsDefined(typeof(SymbolType), symbolInt))
                 {
                     var symbolEnum = (SymbolType)symbolInt;
                     board.Cells[i,j].SetSymbol(symbolEnum);

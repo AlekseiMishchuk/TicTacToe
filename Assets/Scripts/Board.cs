@@ -1,26 +1,26 @@
 using System.Collections.Generic;
+using Enums;
 using Interfaces;
 using UnityEngine;
 
 public class Board : MonoBehaviour, IBoard
 {
     [SerializeField] private List<Cell> _cellList;
-    
-    private Cell[,] _cells = new Cell[BoardSize, BoardSize];
+
     private List<Cell> _finalWinCombination;
     
+    public Cell[,] Cells { get; } = new Cell[BoardSize, BoardSize];
+
     private const int BoardSize = 3;
-    
-    public Cell[,] Cells => _cells;
 
     private void Awake()
     {
         var index = 0;
-        for (var i = 0; i < _cells.GetLength(0); i++)
+        for (var i = 0; i < Cells.GetLength(0); i++)
         {
-            for (var j = 0; j < _cells.GetLength(1); j++)
+            for (var j = 0; j < Cells.GetLength(1); j++)
             {
-                _cells[i, j] = _cellList[index];
+                Cells[i, j] = _cellList[index];
                 index++;
             }
         }
@@ -28,16 +28,32 @@ public class Board : MonoBehaviour, IBoard
 
     public void Initialization()
     {
-        foreach (var cell in _cells)
+        foreach (var cell in Cells)
         {
             cell.Clear();
         }
         _finalWinCombination?.Clear();
     }
 
-    public bool WinConditions(SymbolType symbol)
+    public MoveResult CheckMoveResult(SymbolType symbol)
     {
-        return CheckLines(symbol) || CheckDiagonal(symbol);
+        var haveEmptyCells = false;
+        foreach (var cell in Cells)
+        {
+            if (cell.Symbol == SymbolType.Empty)
+            {
+                haveEmptyCells = true;
+                break;
+            }
+        }
+        
+        if (CheckLines(symbol) || CheckDiagonal(symbol))
+        {
+            return symbol == SymbolType.Cross ? MoveResult.CrossesWin : MoveResult.CirclesWin;
+        }
+        
+        return !haveEmptyCells ? MoveResult.Draw : MoveResult.GameContinues;
+
     }
 
     private bool CheckLines(SymbolType symbol)
@@ -50,16 +66,16 @@ public class Board : MonoBehaviour, IBoard
             
             for (var j = 0; j < BoardSize; j++)
             {
-                isRowMatching = isRowMatching && (_cells[i, j].Symbol == symbol);
-                isColumnMatching = isColumnMatching && (_cells[j, i].Symbol == symbol);
+                isRowMatching = isRowMatching && (Cells[i, j].Symbol == symbol);
+                isColumnMatching = isColumnMatching && (Cells[j, i].Symbol == symbol);
 
                 if (isRowMatching)
                 {
-                    winCombination.Add(_cells[i,j]);
+                    winCombination.Add(Cells[i,j]);
                 }
                 else if (isColumnMatching)
                 {
-                    winCombination.Add(_cells[j,i]);
+                    winCombination.Add(Cells[j,i]);
                 }
             }
             
@@ -86,9 +102,9 @@ public class Board : MonoBehaviour, IBoard
 
         for (var i = 0; i < BoardSize; i++)
         {
-            var primaryCell = _cells[i, i];
+            var primaryCell = Cells[i, i];
             var counterIndex = BoardSize - i - 1;
-            var counterCell = _cells[i, counterIndex];
+            var counterCell = Cells[i, counterIndex];
 
             isPrimaryMatching = primaryCell.Symbol == symbol && isPrimaryMatching;
             isCounterMatching = counterCell.Symbol == symbol && isCounterMatching;
