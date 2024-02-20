@@ -1,9 +1,10 @@
 using Enums;
+using Interfaces;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private Board _board;
+    private static IBoard _board;
     
     private static Player _player1;
     private static Player _player2;
@@ -28,12 +29,11 @@ public class GameManager : MonoBehaviour
     
     private void Start()
     {
+        _board = GameObject.FindGameObjectWithTag("Board").GetComponent<IBoard>();
         _player1 = gameObject.AddComponent<Player>();
         _player2 = gameObject.AddComponent<Player>();
         _player1.Initialization(SymbolType.Cross);
         _player2.Initialization(SymbolType.Circle);
-
-        ActivePlayer = _player1;
         
         if (PlayerPrefs.HasKey(HasSavedData))
         {
@@ -41,25 +41,34 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            _board.Initialization();
+            _board.Clear();
         }
+
+        Initialization();
+    }
+
+    private static void Initialization()
+    {
+        _board ??= GameObject.FindGameObjectWithTag("Board").GetComponent<IBoard>();
+        ActivePlayer = _player1;
         
-        EventManager.AddListener(EventName.MoveMade, CheckGameOver);
+        EventService.AddListener(EventName.MoveMade, CheckGameOver);
+        EventService.AddListener(EventName.StartNewGame, StartNewGame); 
     }
 
     private static void CheckGameOver()
     {
-        var moveResult = Instance._board.CheckMoveResult(ActivePlayer.Symbol);
+        var moveResult = _board.CheckMoveResult(ActivePlayer.Symbol);
         if (moveResult != MoveResult.GameContinues)
         {
-            Instance._board.HighlightWinCombination();
-            EventManager.Invoke(EventName.GameOver, moveResult);
+            _board.HighlightWinCombination();
+            EventService.Invoke(EventName.GameOver, moveResult);
             PlayerPrefs.DeleteKey(HasSavedData);
         }
         else
         {
             ChangePlayer();
-            SaveLoadService.SaveBoardState(Instance._board, ActivePlayer.Symbol);
+            SaveLoadService.SaveBoardState(_board, ActivePlayer.Symbol);
             PlayerPrefs.SetInt(HasSavedData, 1);
         }
     }
@@ -67,5 +76,13 @@ public class GameManager : MonoBehaviour
     private static void ChangePlayer()
     {
         ActivePlayer = ActivePlayer == _player1 ? _player2 : _player1;
+    }
+
+    public static void StartNewGame()
+    {
+        SceneService.ReloadScene();
+        PlayerPrefs.DeleteAll();
+        EventService.ClearEvents();
+        Initialization();
     }
 }

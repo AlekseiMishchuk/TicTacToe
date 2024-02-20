@@ -37,7 +37,6 @@ public class Cell : MonoBehaviour
 
     public void Highlight()
     {
-        Debug.Log("Cell highlighted");
         var color = _highlight.color;
         color.a = 1;
         _highlight.color = color;
@@ -52,7 +51,7 @@ public class Cell : MonoBehaviour
         
         SetSymbol(GameManager.ActivePlayer.Symbol);
         _background.color = Color.gray;
-        EventManager.Invoke(EventName.MoveMade);
+        EventService.Invoke(EventName.MoveMade);
     }
 
     private IEnumerable ClickAnimation()

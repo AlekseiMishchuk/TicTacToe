@@ -9,12 +9,13 @@ public class Board : MonoBehaviour, IBoard
 
     private List<Cell> _finalWinCombination;
     
-    public Cell[,] Cells { get; } = new Cell[BoardSize, BoardSize];
+    public Cell[,] Cells { get; private set; }
 
     private const int BoardSize = 3;
 
     private void Awake()
     {
+        Cells = new Cell[BoardSize, BoardSize];
         var index = 0;
         for (var i = 0; i < Cells.GetLength(0); i++)
         {
@@ -26,7 +27,7 @@ public class Board : MonoBehaviour, IBoard
         }
     }
 
-    public void Initialization()
+    public void Clear()
     {
         foreach (var cell in Cells)
         {

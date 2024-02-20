@@ -5,7 +5,8 @@ namespace Interfaces
     public interface IBoard
     {
         Cell[,] Cells { get; }
-        void Initialization();
+        void Clear();
         MoveResult CheckMoveResult(SymbolType symbol);
+        void HighlightWinCombination();
     }
 }

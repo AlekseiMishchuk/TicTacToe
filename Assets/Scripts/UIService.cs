@@ -1,23 +1,22 @@
-using System;
 using Enums;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour
+public class UIService : MonoBehaviour
 {
     [SerializeField] private TMP_Text _resultText;
-    [SerializeField] private Image _backgroundShader;
+    [SerializeField] private GameObject _finalPopup;
+    [SerializeField] private Button _startNewGameButton;
+    [SerializeField] private Button _popupNewGameButton;
 
-    private static UIManager Instance { get; set; }
+    private static UIService Instance { get; set; }
 
     public void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
-            
         }
         else
         {
@@ -27,12 +26,13 @@ public class UIManager : MonoBehaviour
 
     public void Start()
     {
-        EventManager.AddListener<MoveResult>(EventName.GameOver, GameOver);
+        EventService.AddListener<MoveResult>(EventName.GameOver, GameOver);
+        _startNewGameButton.onClick.AddListener(StartNewGame);
     }
 
     private void GameOver(MoveResult whoWins)
     {
-        _backgroundShader.gameObject.SetActive(true);
+        _finalPopup.SetActive(true);
         switch (whoWins)
         {
             
@@ -47,5 +47,17 @@ public class UIManager : MonoBehaviour
                 _resultText.text = "Draw!";
                 break;        
         }
+        
+        _popupNewGameButton.onClick.AddListener(ClosePopup);
+    }
+
+    private void ClosePopup()
+    {
+        _finalPopup.SetActive(false);
+        StartNewGame();
+    }
+    private static void StartNewGame()
+    {
+        GameManager.StartNewGame();
     }
 }

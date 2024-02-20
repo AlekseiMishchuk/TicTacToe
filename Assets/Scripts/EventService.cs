@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class EventManager : MonoBehaviour
+public class EventService : MonoBehaviour
 {
-    private static EventManager Instance { get; set; }
+    private static EventService Instance { get; set; }
 
     private static Dictionary<EventName, List<UnityAction>> _listeners;
     private static Dictionary<EventName, Dictionary<Type, List<Delegate>>> _listenersOneParam;
@@ -16,14 +16,20 @@ public class EventManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
             _listeners = new Dictionary<EventName, List<UnityAction>>();
-            _listenersOneParam = new Dictionary<EventName, Dictionary<Type, List<Delegate>>>();
+            _listenersOneParam = new Dictionary<EventName, Dictionary<Type, List<Delegate>>>(); 
+            DontDestroyOnLoad(this);
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    public static void ClearEvents()
+    {
+        _listeners = new Dictionary<EventName, List<UnityAction>>();
+        _listenersOneParam = new Dictionary<EventName, Dictionary<Type, List<Delegate>>>();
     }
 
     public static void AddListener(EventName invoker, UnityAction listener)
