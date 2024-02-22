@@ -5,9 +5,9 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     private static IBoard _board;
-    
     private static Player _player1;
     private static Player _player2;
+    private bool _isInitialized;
     
     public static Player ActivePlayer { get; private set; }
     private static GameManager Instance { get; set; }
@@ -25,16 +25,33 @@ public class GameManager : MonoBehaviour
         {
             Destroy(this);
         }
+        
+        _board = GameObject.FindGameObjectWithTag("Board")?.GetComponent<IBoard>();
+        if (_board == null)
+        {
+            Debug.LogError("Cannot find appropriate board");
+        }
+        
+        if (!_isInitialized)
+        {
+            if (_player1 == null)
+            {
+                _player1 = gameObject.AddComponent<Player>();
+                _player1.Initialization(SymbolType.Cross);
+            }
+            if (_player2 == null)
+            {
+                _player2 = gameObject.AddComponent<Player>();
+                _player2.Initialization(SymbolType.Cross);
+            }
+           
+            _isInitialized = true;
+        }
+            
     }
     
     private void Start()
     {
-        _board = GameObject.FindGameObjectWithTag("Board").GetComponent<IBoard>();
-        _player1 = gameObject.AddComponent<Player>();
-        _player2 = gameObject.AddComponent<Player>();
-        _player1.Initialization(SymbolType.Cross);
-        _player2.Initialization(SymbolType.Circle);
-        
         if (PlayerPrefs.HasKey(HasSavedData))
         {
             SaveLoadService.LoadBoardState(_board);
@@ -42,16 +59,9 @@ public class GameManager : MonoBehaviour
         else
         {
             _board.Clear();
+             ActivePlayer = _player1;
         }
-
-        Initialization();
-    }
-
-    private static void Initialization()
-    {
-        _board ??= GameObject.FindGameObjectWithTag("Board").GetComponent<IBoard>();
-        ActivePlayer = _player1;
-        
+       
         EventService.AddListener(EventName.MoveMade, CheckGameOver);
         EventService.AddListener(EventName.StartNewGame, StartNewGame); 
     }
@@ -83,6 +93,5 @@ public class GameManager : MonoBehaviour
         SceneService.ReloadScene();
         PlayerPrefs.DeleteAll();
         EventService.ClearEvents();
-        Initialization();
     }
 }
