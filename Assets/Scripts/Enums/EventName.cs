@@ -4,6 +4,6 @@ namespace Enums
     {
         MoveMade,
         GameOver,
-        StartNewGame
+        StartNewGame,
     }
 }

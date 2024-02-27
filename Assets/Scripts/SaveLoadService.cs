@@ -37,14 +37,14 @@ public static class SaveLoadService
         PlayerPrefs.SetInt(LastPlayerKey, (int)playerSymbol);
     }
 
-    public static void LoadBoardState(IBoard board)
+    public static SymbolType LoadBoardState(IBoard board)
     {
         var boardAsString = PlayerPrefs.GetString(BoardStateKey);
         
-        if (boardAsString == null)
+        if (string.IsNullOrEmpty(boardAsString))
         {
             Debug.LogError($"{BoardStateKey} has no value");
-            return;
+            throw new ArgumentNullException($"PlayerPrefs {BoardStateKey} has no value");
         }
         
         var boardRows = boardAsString.Split(';');
@@ -61,11 +61,12 @@ public static class SaveLoadService
                 }
                 else
                 {
-                    Debug.LogError("Wrong value in board state string, while loading");
-                    return;
+                    throw new AggregateException("Wrong value in board state string, while loading");
                 }
             }
         }
+        var lastPlayerSymbol = (SymbolType)PlayerPrefs.GetInt(LastPlayerKey);
         PlayerPrefs.DeleteAll();
+        return lastPlayerSymbol;
     }
 }

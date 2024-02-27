@@ -48,10 +48,10 @@ public class UIService : MonoBehaviour
                 break;        
         }
         
-        _popupNewGameButton.onClick.AddListener(ClosePopup);
+        _popupNewGameButton.onClick.AddListener(ClosePopupAndRestart);
     }
 
-    private void ClosePopup()
+    private void ClosePopupAndRestart()
     {
         _finalPopup.SetActive(false);
         StartNewGame();

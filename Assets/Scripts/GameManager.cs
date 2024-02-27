@@ -1,8 +1,9 @@
+using System;
 using Enums;
 using Interfaces;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, IOnAwakeCompleted
 {
     private static IBoard _board;
     private static Player _player1;
@@ -42,28 +43,37 @@ public class GameManager : MonoBehaviour
             if (_player2 == null)
             {
                 _player2 = gameObject.AddComponent<Player>();
-                _player2.Initialization(SymbolType.Cross);
+                _player2.Initialization(SymbolType.Circle);
             }
-           
             _isInitialized = true;
         }
-            
-    }
-    
-    private void Start()
-    {
         if (PlayerPrefs.HasKey(HasSavedData))
         {
-            SaveLoadService.LoadBoardState(_board);
+            try
+            {
+                var lastPlayerSymbol = SaveLoadService.LoadBoardState(_board);
+                ActivePlayer = lastPlayerSymbol == _player1.Symbol ? _player1 : _player2;
+            }
+            catch (ArgumentNullException e)
+            {
+                Debug.LogError(e.Message);
+            }
+            catch (AggregateException e)
+            {
+                Debug.LogError(e.Message);
+            }
         }
         else
         {
-            _board.Clear();
-             ActivePlayer = _player1;
+            ActivePlayer = _player1;
         }
-       
+        OnAwakeCompleted();
+    }
+
+    public static void LateAwake()
+    {
         EventService.AddListener(EventName.MoveMade, CheckGameOver);
-        EventService.AddListener(EventName.StartNewGame, StartNewGame); 
+        EventService.AddListener(EventName.StartNewGame, StartNewGame);
     }
 
     private static void CheckGameOver()
@@ -71,7 +81,10 @@ public class GameManager : MonoBehaviour
         var moveResult = _board.CheckMoveResult(ActivePlayer.Symbol);
         if (moveResult != MoveResult.GameContinues)
         {
-            _board.HighlightWinCombination();
+            if(moveResult != MoveResult.Draw)
+            {
+                _board.HighlightWinCombination();
+            }
             EventService.Invoke(EventName.GameOver, moveResult);
             PlayerPrefs.DeleteKey(HasSavedData);
         }
@@ -92,6 +105,11 @@ public class GameManager : MonoBehaviour
     {
         SceneService.ReloadScene();
         PlayerPrefs.DeleteAll();
-        EventService.ClearEvents();
+        EventService.Reload();
+    }
+
+    public void OnAwakeCompleted()
+    {
+        EventService.AwakeCompleted(this);
     }
 }

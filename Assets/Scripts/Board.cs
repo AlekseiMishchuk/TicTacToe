@@ -3,7 +3,7 @@ using Enums;
 using Interfaces;
 using UnityEngine;
 
-public class Board : MonoBehaviour, IBoard
+public class Board : MonoBehaviour, IBoard, IOnAwakeCompleted
 {
     [SerializeField] private List<Cell> _cellList;
 
@@ -25,6 +25,8 @@ public class Board : MonoBehaviour, IBoard
                 index++;
             }
         }
+        
+        OnAwakeCompleted();
     }
 
     public void Clear()
@@ -136,5 +138,10 @@ public class Board : MonoBehaviour, IBoard
         {
             cell.Highlight();
         }
+    }
+
+    public void OnAwakeCompleted()
+    {
+        EventService.AwakeCompleted(this);
     }
 }
