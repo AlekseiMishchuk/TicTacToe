@@ -1,27 +1,21 @@
 using System;
 using Enums;
 using System.Collections.Generic;
-using System.Linq;
-using Interfaces;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class EventService : MonoBehaviour, IOnAwakeCompleted
+public class EventService : MonoBehaviour
 {
     private static EventService Instance { get; set; }
 
-    private static List<IOnAwakeCompleted> _awakeCompletedListeners = new ();
-    private static Dictionary<EventName, List<UnityAction>> _listeners;
-    private static Dictionary<EventName, Dictionary<Type, List<Delegate>>> _listenersOneParam;
+    private static Dictionary<EventName, List<UnityAction>> _listeners = new();
+    private static Dictionary<EventName, Dictionary<Type, List<Delegate>>> _listenersOneParam = new ();
     
     private void Awake()
     {
-        _awakeCompletedListeners.AddRange(FindObjectsOfType<MonoBehaviour>().OfType<IOnAwakeCompleted>());
         if (Instance == null)
         {
             Instance = this;
-            _listeners = new Dictionary<EventName, List<UnityAction>>();
-            _listenersOneParam = new Dictionary<EventName, Dictionary<Type, List<Delegate>>>(); 
             DontDestroyOnLoad(this);
         }
         else
@@ -32,8 +26,6 @@ public class EventService : MonoBehaviour, IOnAwakeCompleted
 
     public static void Reload()
     {
-        _awakeCompletedListeners = new List<IOnAwakeCompleted>();
-        _awakeCompletedListeners.AddRange(FindObjectsOfType<MonoBehaviour>().OfType<IOnAwakeCompleted>());
         _listeners = new Dictionary<EventName, List<UnityAction>>();
         _listenersOneParam = new Dictionary<EventName, Dictionary<Type, List<Delegate>>>();
     }
@@ -115,19 +107,5 @@ public class EventService : MonoBehaviour, IOnAwakeCompleted
             var listener = @delegate as UnityAction<T>;
             listener?.Invoke(data);
         }
-    }
-
-    public static void AwakeCompleted(IOnAwakeCompleted invoker)
-    {
-        _awakeCompletedListeners.Remove(invoker);
-        if (_awakeCompletedListeners.Count == 0)
-        {
-            GameManager.LateAwake();
-        }
-    }
-
-    public void OnAwakeCompleted()
-    {
-        AwakeCompleted(this);
     }
 }

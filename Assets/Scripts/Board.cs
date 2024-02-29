@@ -3,17 +3,18 @@ using Enums;
 using Interfaces;
 using UnityEngine;
 
-public class Board : MonoBehaviour, IBoard, IOnAwakeCompleted
+public class Board : MonoBehaviour, IBoard, IManualInitialization
 {
     [SerializeField] private List<Cell> _cellList;
-
     private List<Cell> _finalWinCombination;
-    
+
+    public BootPriority BootPriority => BootPriority.Core;
     public Cell[,] Cells { get; private set; }
 
     private const int BoardSize = 3;
 
-    private void Awake()
+    
+    public void ManualInit()
     {
         Cells = new Cell[BoardSize, BoardSize];
         var index = 0;
@@ -24,11 +25,9 @@ public class Board : MonoBehaviour, IBoard, IOnAwakeCompleted
                 Cells[i, j] = _cellList[index];
                 index++;
             }
-        }
-        
-        OnAwakeCompleted();
+        } 
     }
-
+    
     public void Clear()
     {
         foreach (var cell in Cells)
@@ -138,10 +137,5 @@ public class Board : MonoBehaviour, IBoard, IOnAwakeCompleted
         {
             cell.Highlight();
         }
-    }
-
-    public void OnAwakeCompleted()
-    {
-        EventService.AwakeCompleted(this);
     }
 }

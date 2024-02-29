@@ -3,13 +3,14 @@ using Enums;
 using Interfaces;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour, IOnAwakeCompleted
+public class GameManager : MonoBehaviour, IManualInitialization
 {
     private static IBoard _board;
     private static Player _player1;
     private static Player _player2;
-    private bool _isInitialized;
-    
+    private static bool _isInitialized;
+
+    public BootPriority BootPriority => BootPriority.Dependent;
     public static Player ActivePlayer { get; private set; }
     private static GameManager Instance { get; set; }
     
@@ -67,13 +68,15 @@ public class GameManager : MonoBehaviour, IOnAwakeCompleted
         {
             ActivePlayer = _player1;
         }
-        OnAwakeCompleted();
+        
+        Bootstrap.InitializeScene();
     }
 
-    public static void LateAwake()
+    public void ManualInit()
     {
         EventService.AddListener(EventName.MoveMade, CheckGameOver);
         EventService.AddListener(EventName.StartNewGame, StartNewGame);
+        Debug.Log("Event listeners added");
     }
 
     private static void CheckGameOver()
@@ -101,15 +104,11 @@ public class GameManager : MonoBehaviour, IOnAwakeCompleted
         ActivePlayer = ActivePlayer == _player1 ? _player2 : _player1;
     }
 
-    public static void StartNewGame()
+    private static void StartNewGame()
     {
         SceneService.ReloadScene();
         PlayerPrefs.DeleteAll();
         EventService.Reload();
     }
 
-    public void OnAwakeCompleted()
-    {
-        EventService.AwakeCompleted(this);
-    }
 }

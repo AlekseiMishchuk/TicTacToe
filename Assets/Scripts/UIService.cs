@@ -1,14 +1,17 @@
 using Enums;
+using Interfaces;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIService : MonoBehaviour
+public class UIService : MonoBehaviour, IManualInitialization
 {
     [SerializeField] private TMP_Text _resultText;
     [SerializeField] private GameObject _finalPopup;
     [SerializeField] private Button _startNewGameButton;
     [SerializeField] private Button _popupNewGameButton;
+
+    public BootPriority BootPriority => BootPriority.Dependent;
 
     private static UIService Instance { get; set; }
 
@@ -24,7 +27,7 @@ public class UIService : MonoBehaviour
         }
     }
 
-    public void Start()
+    public void ManualInit()
     {
         EventService.AddListener<MoveResult>(EventName.GameOver, GameOver);
         _startNewGameButton.onClick.AddListener(StartNewGame);
@@ -58,6 +61,6 @@ public class UIService : MonoBehaviour
     }
     private static void StartNewGame()
     {
-        GameManager.StartNewGame();
+        EventService.Invoke(EventName.StartNewGame);
     }
 }
