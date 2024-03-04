@@ -12,7 +12,6 @@ public class Board : MonoBehaviour, IBoard, IManualInitialization
     public Cell[,] Cells { get; private set; }
 
     private const int BoardSize = 3;
-
     
     public void ManualInit()
     {

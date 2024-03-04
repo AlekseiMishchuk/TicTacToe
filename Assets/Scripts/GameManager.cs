@@ -5,27 +5,39 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour, IManualInitialization
 {
+    private static GameManager _instance;
     private static IBoard _board;
     private static Player _player1;
     private static Player _player2;
-    private static bool _isInitialized;
 
     public BootPriority BootPriority => BootPriority.Dependent;
     public static Player ActivePlayer { get; private set; }
-    private static GameManager Instance { get; set; }
     
     private const string HasSavedData = "saved";
 
     private void Awake()
     {
-        if (Instance == null)
+        if (_instance == null)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            _instance = this;
         }
         else
         {
             Destroy(this);
+        }
+    }
+
+    public void ManualInit()
+    {
+        if (_player1 == null)
+        {
+            _player1 = _instance.gameObject.AddComponent<Player>();
+            _player1.Initialization(SymbolType.Cross);
+        }
+        if (_player2 == null)
+        {
+            _player2 = _instance.gameObject.AddComponent<Player>(); 
+            _player2.Initialization(SymbolType.Circle);
         }
         
         _board = GameObject.FindGameObjectWithTag("Board")?.GetComponent<IBoard>();
@@ -34,20 +46,6 @@ public class GameManager : MonoBehaviour, IManualInitialization
             Debug.LogError("Cannot find appropriate board");
         }
         
-        if (!_isInitialized)
-        {
-            if (_player1 == null)
-            {
-                _player1 = gameObject.AddComponent<Player>();
-                _player1.Initialization(SymbolType.Cross);
-            }
-            if (_player2 == null)
-            {
-                _player2 = gameObject.AddComponent<Player>();
-                _player2.Initialization(SymbolType.Circle);
-            }
-            _isInitialized = true;
-        }
         if (PlayerPrefs.HasKey(HasSavedData))
         {
             try
@@ -69,14 +67,8 @@ public class GameManager : MonoBehaviour, IManualInitialization
             ActivePlayer = _player1;
         }
         
-        Bootstrap.InitializeScene();
-    }
-
-    public void ManualInit()
-    {
         EventService.AddListener(EventName.MoveMade, CheckGameOver);
         EventService.AddListener(EventName.StartNewGame, StartNewGame);
-        Debug.Log("Event listeners added");
     }
 
     private static void CheckGameOver()
@@ -108,7 +100,6 @@ public class GameManager : MonoBehaviour, IManualInitialization
     {
         SceneService.ReloadScene();
         PlayerPrefs.DeleteAll();
-        EventService.Reload();
     }
 
 }

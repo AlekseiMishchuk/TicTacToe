@@ -13,20 +13,6 @@ public class UIService : MonoBehaviour, IManualInitialization
 
     public BootPriority BootPriority => BootPriority.Dependent;
 
-    private static UIService Instance { get; set; }
-
-    public void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
-
     public void ManualInit()
     {
         EventService.AddListener<MoveResult>(EventName.GameOver, GameOver);
@@ -38,7 +24,6 @@ public class UIService : MonoBehaviour, IManualInitialization
         _finalPopup.SetActive(true);
         switch (whoWins)
         {
-            
             case MoveResult.CrossesWin:
                 _resultText.text = "Crosses won!";
                 break;
@@ -50,7 +35,6 @@ public class UIService : MonoBehaviour, IManualInitialization
                 _resultText.text = "Draw!";
                 break;        
         }
-        
         _popupNewGameButton.onClick.AddListener(ClosePopupAndRestart);
     }
 

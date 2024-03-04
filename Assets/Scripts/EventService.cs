@@ -1,22 +1,24 @@
 using System;
 using Enums;
 using System.Collections.Generic;
+using Interfaces;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class EventService : MonoBehaviour
+public class EventService : MonoBehaviour, IManualInitialization
 {
-    private static EventService Instance { get; set; }
+    private static EventService _instance;
 
-    private static Dictionary<EventName, List<UnityAction>> _listeners = new();
-    private static Dictionary<EventName, Dictionary<Type, List<Delegate>>> _listenersOneParam = new ();
+    public BootPriority BootPriority => BootPriority.Core;
+
+    private static Dictionary<EventName, List<UnityAction>> _listeners;
+    private static Dictionary<EventName, Dictionary<Type, List<Delegate>>> _listenersOneParam;
     
-    private void Awake()
+    public void Awake()
     {
-        if (Instance == null)
+        if (_instance == null)
         {
-            Instance = this;
-            DontDestroyOnLoad(this);
+            _instance = this;
         }
         else
         {
@@ -24,7 +26,7 @@ public class EventService : MonoBehaviour
         }
     }
 
-    public static void Reload()
+    public void ManualInit()
     {
         _listeners = new Dictionary<EventName, List<UnityAction>>();
         _listenersOneParam = new Dictionary<EventName, Dictionary<Type, List<Delegate>>>();

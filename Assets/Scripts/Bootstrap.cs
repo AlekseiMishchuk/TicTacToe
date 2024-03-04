@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Enums;
@@ -6,10 +7,12 @@ using UnityEngine;
 
 public class Bootstrap : MonoBehaviour
 {
-    private static SortedList<BootPriority, List<IManualInitialization>> _initializables = new();
+    private static SortedList<BootPriority, List<IManualInitialization>> _initializables;
 
-    public static void InitializeScene()
+    public void Start()
     {
+        _initializables = new SortedList<BootPriority, List<IManualInitialization>>();
+        
         var list = new List<IManualInitialization>(); 
         list.AddRange(FindObjectsOfType<MonoBehaviour>().OfType<IManualInitialization>());
 
