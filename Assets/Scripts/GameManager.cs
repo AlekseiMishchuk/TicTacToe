@@ -3,7 +3,7 @@ using Enums;
 using Interfaces;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour, IManualInitialization
+public class GameManager : MonoBehaviour, IBootstrappable
 {
     private static GameManager _instance;
     private static IBoard _board;
@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour, IManualInitialization
         }
     }
 
-    public void ManualInit()
+    public void ManualStart()
     {
         if (_player1 == null)
         {

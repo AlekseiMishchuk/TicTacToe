@@ -3,7 +3,7 @@ using Enums;
 using Interfaces;
 using UnityEngine;
 
-public class Board : MonoBehaviour, IBoard, IManualInitialization
+public class Board : MonoBehaviour, IBoard, IBootstrappable
 {
     [SerializeField] private List<Cell> _cellList;
     private List<Cell> _finalWinCombination;
@@ -13,7 +13,7 @@ public class Board : MonoBehaviour, IBoard, IManualInitialization
 
     private const int BoardSize = 3;
     
-    public void ManualInit()
+    public void ManualStart()
     {
         Cells = new Cell[BoardSize, BoardSize];
         var index = 0;
@@ -54,7 +54,6 @@ public class Board : MonoBehaviour, IBoard, IManualInitialization
         }
         
         return !haveEmptyCells ? MoveResult.Draw : MoveResult.GameContinues;
-
     }
 
     private bool CheckLines(SymbolType symbol)

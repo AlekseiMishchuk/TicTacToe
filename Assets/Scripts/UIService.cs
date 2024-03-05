@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIService : MonoBehaviour, IManualInitialization
+public class UIService : MonoBehaviour, IBootstrappable
 {
     [SerializeField] private TMP_Text _resultText;
     [SerializeField] private GameObject _finalPopup;
@@ -13,7 +13,7 @@ public class UIService : MonoBehaviour, IManualInitialization
 
     public BootPriority BootPriority => BootPriority.Dependent;
 
-    public void ManualInit()
+    public void ManualStart()
     {
         EventService.AddListener<MoveResult>(EventName.GameOver, GameOver);
         _startNewGameButton.onClick.AddListener(StartNewGame);

@@ -2,9 +2,9 @@ using Enums;
 
 namespace Interfaces
 {
-    public interface IManualInitialization
+    public interface IBootstrappable
     {
         public BootPriority BootPriority { get;}
-        void ManualInit();
+        void ManualStart();
     }
 }
