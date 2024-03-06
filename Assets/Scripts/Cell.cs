@@ -6,8 +6,8 @@ public class Cell : MonoBehaviour
 {
     [SerializeField] private Sprite _crossSprite;
     [SerializeField] private Sprite _circleSprite;
-    [SerializeField] private SpriteRenderer _highlight;
     [SerializeField] private SpriteRenderer _background;
+    [SerializeField] private Color _highlightColor;
     public SymbolType Symbol { get; private set; }
 
 
@@ -37,9 +37,7 @@ public class Cell : MonoBehaviour
 
     public void Highlight()
     {
-        var color = _highlight.color;
-        color.a = 1;
-        _highlight.color = color;
+        _background.color = _highlightColor;
     }
 
     private void OnMouseDown()
@@ -50,7 +48,6 @@ public class Cell : MonoBehaviour
         }
         
         SetSymbol(GameManager.ActivePlayer.Symbol);
-        _background.color = Color.gray;
         EventService.Invoke(EventName.MoveMade);
     }
 
