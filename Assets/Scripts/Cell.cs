@@ -1,15 +1,22 @@
-using System.Collections;
 using Enums;
+using Interfaces;
 using UnityEngine;
 
-public class Cell : MonoBehaviour
+public class Cell : MonoBehaviour, IBootstrappable
 {
     [SerializeField] private Sprite _crossSprite;
     [SerializeField] private Sprite _circleSprite;
     [SerializeField] private SpriteRenderer _background;
     [SerializeField] private Color _highlightColor;
-    public SymbolType Symbol { get; private set; }
 
+    private bool _isBlocked;
+    public SymbolType Symbol { get; private set; }
+    public BootPriority BootPriority => BootPriority.Dependent;
+
+    public void ManualStart()
+    {
+        EventService.AddListener(EventName.GameOver, BlockMouseClick);
+    }
 
     public void SetSymbol(SymbolType symbol)
     {
@@ -42,7 +49,7 @@ public class Cell : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (Symbol is SymbolType.Circle or SymbolType.Cross)
+        if (Symbol is SymbolType.Circle or SymbolType.Cross || _isBlocked)
         {
             return;
         }
@@ -51,8 +58,8 @@ public class Cell : MonoBehaviour
         EventService.Invoke(EventName.MoveMade);
     }
 
-    private IEnumerable ClickAnimation()
+    private void BlockMouseClick()
     {
-        yield return null;
+        _isBlocked = true;
     }
 }

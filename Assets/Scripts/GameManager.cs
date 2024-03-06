@@ -80,6 +80,7 @@ public class GameManager : MonoBehaviour, IBootstrappable
             {
                 _board.HighlightWinCombination();
             }
+            EventService.Invoke(EventName.GameOver);
             EventService.Invoke(EventName.GameOver, moveResult);
             PlayerPrefs.DeleteKey(HasSavedData);
         }

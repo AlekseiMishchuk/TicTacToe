@@ -8,7 +8,7 @@ public class Board : MonoBehaviour, IBoard, IBootstrappable
     [SerializeField] private List<Cell> _cellList;
     private List<Cell> _finalWinCombination;
 
-    public BootPriority BootPriority => BootPriority.Core;
+    public BootPriority BootPriority => BootPriority.Dependent;
     public Cell[,] Cells { get; private set; }
 
     private const int BoardSize = 3;
