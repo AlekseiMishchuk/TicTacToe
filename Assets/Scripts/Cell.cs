@@ -1,21 +1,29 @@
 using Enums;
-using Interfaces;
 using UnityEngine;
+using Zenject;
 
-public class Cell : MonoBehaviour, IBootstrappable
+public class Cell : MonoBehaviour, IInitializable
 {
     [SerializeField] private Sprite _crossSprite;
     [SerializeField] private Sprite _circleSprite;
     [SerializeField] private SpriteRenderer _background;
     [SerializeField] private Color _highlightColor;
 
-    private bool _isBlocked;
+    private GameManager _gameManager;
+    private EventService _eventService;
     public SymbolType Symbol { get; private set; }
-    public BootPriority BootPriority => BootPriority.Dependent;
 
-    public void ManualStart()
+    [Inject]
+    public void Construct(GameManager gameManger, EventService eventService)
     {
-        EventService.AddListener(EventName.GameOver, BlockMouseClick);
+        _gameManager = gameManger;
+        _eventService = eventService;
+        _eventService.AddListener(EventName.GameOver, BlockMouseClick);
+    }
+
+    public void Initialize()
+    {
+        
     }
 
     public void SetSymbol(SymbolType symbol)
@@ -49,17 +57,17 @@ public class Cell : MonoBehaviour, IBootstrappable
 
     private void OnMouseDown()
     {
-        if (Symbol is SymbolType.Circle or SymbolType.Cross || _isBlocked)
+        if (Symbol is SymbolType.Circle or SymbolType.Cross)
         {
             return;
         }
         
-        SetSymbol(GameManager.ActivePlayer.Symbol);
-        EventService.Invoke(EventName.MoveMade);
+        SetSymbol(_gameManager.ActivePlayer.Symbol);
+        _eventService.Invoke(EventName.MoveMade);
     }
 
     private void BlockMouseClick()
     {
-        _isBlocked = true;
+        GetComponent<BoxCollider2D>().enabled = false;
     }
 }

@@ -1,24 +1,30 @@
 using Enums;
-using Interfaces;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
-public class UIService : MonoBehaviour, IBootstrappable
+public class UIService : MonoBehaviour, IInitializable
 {
     [SerializeField] private TMP_Text _resultText;
     [SerializeField] private GameObject _finalPopup;
     [SerializeField] private Button _startNewGameButton;
     [SerializeField] private Button _popupNewGameButton;
 
-    public BootPriority BootPriority => BootPriority.Dependent;
+    private EventService _eventService;
 
-    public void ManualStart()
+    [Inject]
+    public void Construct(EventService eventService)
     {
-        EventService.AddListener<MoveResult>(EventName.GameOver, GameOver);
-        _startNewGameButton.onClick.AddListener(StartNewGame);
+        _eventService = eventService;
     }
-
+    
+    public void Initialize()
+    {
+        _eventService.AddListener<MoveResult>(EventName.GameOver, GameOver);
+        _startNewGameButton.onClick.AddListener(StartNewGame); 
+    }
+    
     private void GameOver(MoveResult whoWins)
     {
         _finalPopup.SetActive(true);
@@ -43,8 +49,8 @@ public class UIService : MonoBehaviour, IBootstrappable
         _finalPopup.SetActive(false);
         StartNewGame();
     }
-    private static void StartNewGame()
+    private void StartNewGame()
     {
-        EventService.Invoke(EventName.StartNewGame);
+        _eventService.Invoke(EventName.StartNewGame);
     }
 }

@@ -1,11 +1,10 @@
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class SceneService : MonoBehaviour
+public class SceneService 
 {
-    public static void ReloadScene()
+    public void ReloadScene()
     {
         var sceneIndex = SceneManager.GetActiveScene().buildIndex;
-        SceneManager.LoadScene(sceneIndex);
+        SceneManager.LoadSceneAsync(sceneIndex);
     }
 }

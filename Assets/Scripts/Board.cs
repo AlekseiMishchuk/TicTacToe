@@ -1,19 +1,20 @@
+using System;
 using System.Collections.Generic;
 using Enums;
 using Interfaces;
 using UnityEngine;
+using Zenject;
 
-public class Board : MonoBehaviour, IBoard, IBootstrappable
+public class Board : MonoBehaviour, IBoard
 {
-    [SerializeField] private List<Cell> _cellList;
     private List<Cell> _finalWinCombination;
 
-    public BootPriority BootPriority => BootPriority.Dependent;
     public Cell[,] Cells { get; private set; }
 
     private const int BoardSize = 3;
-    
-    public void ManualStart()
+
+    [Inject]
+    public void Construct(Cell[] cells)
     {
         Cells = new Cell[BoardSize, BoardSize];
         var index = 0;
@@ -21,10 +22,10 @@ public class Board : MonoBehaviour, IBoard, IBootstrappable
         {
             for (var j = 0; j < Cells.GetLength(1); j++)
             {
-                Cells[i, j] = _cellList[index];
+                Cells[i, j] = cells[index];
                 index++;
             }
-        } 
+        }  
     }
     
     public void Clear()

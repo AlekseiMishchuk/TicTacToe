@@ -2,56 +2,49 @@ using System;
 using Enums;
 using Interfaces;
 using UnityEngine;
+using Zenject;
 
-public class GameManager : MonoBehaviour, IBootstrappable
+public class GameManager : IInitializable
 {
-    private static GameManager _instance;
-    private static IBoard _board;
-    private static Player _player1;
-    private static Player _player2;
+    private readonly EventService _eventService;
+    private readonly SaveLoadService _saveLoadService;
+    private readonly SceneService _sceneService;
+    private readonly IBoard _board;
+    private readonly Player _player1;
+    private readonly Player _player2;
 
-    public BootPriority BootPriority => BootPriority.Dependent;
-    public static Player ActivePlayer { get; private set; }
+    public Player ActivePlayer { get; private set; }
     
     private const string HasSavedData = "saved";
 
-    private void Awake()
+    [Inject]
+    public GameManager(
+        Player player1, 
+        Player player2, 
+        IBoard board, 
+        EventService eventService, 
+        SaveLoadService saveLoadService,
+        SceneService sceneService)
     {
-        if (_instance == null)
-        {
-            _instance = this;
-        }
-        else
-        {
-            Destroy(this);
-        }
+        _board = board;
+        _player1 = player1;
+        _player2 = player2;
+        _eventService = eventService;
+        _saveLoadService = saveLoadService;
+        _sceneService = sceneService;
     }
-
-    public void ManualStart()
+    
+    public void Initialize()
     {
-        if (_player1 == null)
-        {
-            _player1 = _instance.gameObject.AddComponent<Player>();
-            _player1.Initialization(SymbolType.Cross);
-        }
-        if (_player2 == null)
-        {
-            _player2 = _instance.gameObject.AddComponent<Player>(); 
-            _player2.Initialization(SymbolType.Circle);
-        }
-        
-        _board = GameObject.FindGameObjectWithTag("Board")?.GetComponent<IBoard>();
-        if (_board == null)
-        {
-            Debug.LogError("Cannot find appropriate board");
-        }
+        _player1?.Initialization(SymbolType.Cross);
+        _player2?.Initialization(SymbolType.Circle);
         
         if (PlayerPrefs.HasKey(HasSavedData))
         {
             try
             {
-                var lastPlayerSymbol = SaveLoadService.LoadBoardState(_board);
-                ActivePlayer = lastPlayerSymbol == _player1.Symbol ? _player1 : _player2;
+                var lastPlayerSymbol = _saveLoadService.LoadBoardState(_board);
+                ActivePlayer = lastPlayerSymbol == _player1?.Symbol ? _player1 : _player2;
             }
             catch (ArgumentNullException e)
             {
@@ -67,11 +60,11 @@ public class GameManager : MonoBehaviour, IBootstrappable
             ActivePlayer = _player1;
         }
         
-        EventService.AddListener(EventName.MoveMade, CheckGameOver);
-        EventService.AddListener(EventName.StartNewGame, StartNewGame);
+        _eventService.AddListener(EventName.MoveMade, CheckGameOver);
+        _eventService.AddListener(EventName.StartNewGame, StartNewGame);
     }
-
-    private static void CheckGameOver()
+ 
+    private void CheckGameOver()
     {
         var moveResult = _board.CheckMoveResult(ActivePlayer.Symbol);
         if (moveResult != MoveResult.GameContinues)
@@ -80,27 +73,27 @@ public class GameManager : MonoBehaviour, IBootstrappable
             {
                 _board.HighlightWinCombination();
             }
-            EventService.Invoke(EventName.GameOver);
-            EventService.Invoke(EventName.GameOver, moveResult);
+            _eventService.Invoke(EventName.GameOver);
+            _eventService.Invoke(EventName.GameOver, moveResult);
             PlayerPrefs.DeleteKey(HasSavedData);
         }
         else
         {
             ChangePlayer();
-            SaveLoadService.SaveBoardState(_board, ActivePlayer.Symbol);
+            _saveLoadService.SaveBoardState(_board, ActivePlayer.Symbol);
             PlayerPrefs.SetInt(HasSavedData, 1);
         }
     }
     
-    private static void ChangePlayer()
+    private void ChangePlayer()
     {
         ActivePlayer = ActivePlayer == _player1 ? _player2 : _player1;
     }
 
-    private static void StartNewGame()
+    private void StartNewGame()
     {
-        SceneService.ReloadScene();
         PlayerPrefs.DeleteAll();
+        _sceneService.ReloadScene();
     }
 
 }

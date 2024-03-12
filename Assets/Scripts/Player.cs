@@ -1,7 +1,6 @@
 using Enums;
-using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player
 {
     public SymbolType Symbol { get; private set;}
 

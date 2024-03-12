@@ -4,11 +4,11 @@ using Enums;
 using Interfaces;
 using UnityEngine;
 
-public static class SaveLoadService
+public class SaveLoadService
 {
     private const string BoardStateKey = "boardState";
     private const string LastPlayerKey = "lastPlayerSymbol";
-    public static void SaveBoardState(IBoard board, SymbolType playerSymbol)
+    public void SaveBoardState(IBoard board, SymbolType playerSymbol)
     {
         var cells = board.Cells; 
         var boardAsString = new StringBuilder();
@@ -37,7 +37,7 @@ public static class SaveLoadService
         PlayerPrefs.SetInt(LastPlayerKey, (int)playerSymbol);
     }
 
-    public static SymbolType LoadBoardState(IBoard board)
+    public SymbolType LoadBoardState(IBoard board)
     {
         var boardAsString = PlayerPrefs.GetString(BoardStateKey);
         

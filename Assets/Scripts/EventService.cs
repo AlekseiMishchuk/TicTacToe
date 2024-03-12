@@ -1,38 +1,25 @@
 using System;
 using Enums;
 using System.Collections.Generic;
-using Interfaces;
-using UnityEngine;
 using UnityEngine.Events;
 
-public class EventService : MonoBehaviour, IBootstrappable
+public class EventService
 {
-    private static EventService _instance;
+    private static readonly Dictionary<EventName, List<UnityAction>> _listeners = new ();
+    private static readonly Dictionary<EventName, Dictionary<Type, List<Delegate>>> _listenersOneParam = new ();
 
-    public BootPriority BootPriority => BootPriority.Core;
-
-    private static Dictionary<EventName, List<UnityAction>> _listeners;
-    private static Dictionary<EventName, Dictionary<Type, List<Delegate>>> _listenersOneParam;
-    
-    public void Awake()
+    public EventService()
     {
-        if (_instance == null)
+        if (_listeners.Count > 0)
         {
-            _instance = this;
+            _listeners.Clear();
         }
-        else
+        if (_listenersOneParam.Count > 0)
         {
-            Destroy(this);
+            _listenersOneParam.Clear();
         }
     }
-
-    public void ManualStart()
-    {
-        _listeners = new Dictionary<EventName, List<UnityAction>>();
-        _listenersOneParam = new Dictionary<EventName, Dictionary<Type, List<Delegate>>>();
-    }
-
-    public static void AddListener(EventName eventName, UnityAction listener)
+    public void AddListener(EventName eventName, UnityAction listener)
     {
         if (_listeners.ContainsKey(eventName))
         {
@@ -44,7 +31,7 @@ public class EventService : MonoBehaviour, IBootstrappable
         }
     }
     
-    public static void AddListener<T>(EventName eventName, UnityAction<T> listener)
+    public void AddListener<T>(EventName eventName, UnityAction<T> listener)
     {
         if (!_listenersOneParam.ContainsKey(eventName))
         {
@@ -61,7 +48,7 @@ public class EventService : MonoBehaviour, IBootstrappable
         _listenersOneParam[eventName][parameterType].Add(listener);
     }
 
-    public static void RemoveListener(EventName eventName, UnityAction listener)
+    public void RemoveListener(EventName eventName, UnityAction listener)
     {
         if (!_listeners.ContainsKey(eventName))
         {
@@ -71,7 +58,7 @@ public class EventService : MonoBehaviour, IBootstrappable
         _listeners[eventName].Remove(listener);
     }
 
-    public static void RemoveListener<T>(EventName eventName, UnityAction<T> listener)
+    public void RemoveListener<T>(EventName eventName, UnityAction<T> listener)
     {
         var parameterType = listener.Method.GetParameters()[0].ParameterType;
         if (!_listenersOneParam.ContainsKey(eventName) || !_listenersOneParam[eventName].ContainsKey(parameterType))
@@ -82,7 +69,7 @@ public class EventService : MonoBehaviour, IBootstrappable
         _listenersOneParam[eventName].Remove(parameterType);
     }
 
-    public static void Invoke(EventName eventName)
+    public void Invoke(EventName eventName)
     {
         if (!_listeners.ContainsKey(eventName))
         {
@@ -95,7 +82,7 @@ public class EventService : MonoBehaviour, IBootstrappable
         }
     }
 
-    public static void Invoke<T>(EventName eventName, T data)
+    public void Invoke<T>(EventName eventName, T data)
     {
         var parameterType = typeof(T);
         
