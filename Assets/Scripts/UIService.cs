@@ -23,6 +23,7 @@ public class UIService : MonoBehaviour, IInitializable
     {
         _eventService.AddListener<MoveResult>(EventName.GameOver, GameOver);
         _startNewGameButton.onClick.AddListener(StartNewGame); 
+        _popupNewGameButton.onClick.AddListener(ClosePopupAndRestart);
     }
     
     private void GameOver(MoveResult whoWins)
@@ -41,7 +42,6 @@ public class UIService : MonoBehaviour, IInitializable
                 _resultText.text = "Draw!";
                 break;        
         }
-        _popupNewGameButton.onClick.AddListener(ClosePopupAndRestart);
     }
 
     private void ClosePopupAndRestart()
@@ -49,6 +49,7 @@ public class UIService : MonoBehaviour, IInitializable
         _finalPopup.SetActive(false);
         StartNewGame();
     }
+    
     private void StartNewGame()
     {
         _eventService.Invoke(EventName.StartNewGame);

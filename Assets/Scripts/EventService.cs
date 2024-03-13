@@ -3,22 +3,11 @@ using Enums;
 using System.Collections.Generic;
 using UnityEngine.Events;
 
-public class EventService
+public class EventService : IDisposable
 {
     private static readonly Dictionary<EventName, List<UnityAction>> _listeners = new ();
     private static readonly Dictionary<EventName, Dictionary<Type, List<Delegate>>> _listenersOneParam = new ();
 
-    public EventService()
-    {
-        if (_listeners.Count > 0)
-        {
-            _listeners.Clear();
-        }
-        if (_listenersOneParam.Count > 0)
-        {
-            _listenersOneParam.Clear();
-        }
-    }
     public void AddListener(EventName eventName, UnityAction listener)
     {
         if (_listeners.ContainsKey(eventName))
@@ -96,5 +85,11 @@ public class EventService
             var listener = @delegate as UnityAction<T>;
             listener?.Invoke(data);
         }
+    }
+
+    public void Dispose()
+    {
+        _listeners.Clear();
+        _listenersOneParam.Clear();
     }
 }

@@ -2,28 +2,21 @@ using Enums;
 using UnityEngine;
 using Zenject;
 
-public class Cell : MonoBehaviour, IInitializable
+public class Cell : MonoBehaviour
 {
     [SerializeField] private Sprite _crossSprite;
     [SerializeField] private Sprite _circleSprite;
     [SerializeField] private SpriteRenderer _background;
     [SerializeField] private Color _highlightColor;
 
-    private GameManager _gameManager;
     private EventService _eventService;
     public SymbolType Symbol { get; private set; }
 
     [Inject]
-    public void Construct(GameManager gameManger, EventService eventService)
+    public void Construct( EventService eventService)
     {
-        _gameManager = gameManger;
         _eventService = eventService;
         _eventService.AddListener(EventName.GameOver, BlockMouseClick);
-    }
-
-    public void Initialize()
-    {
-        
     }
 
     public void SetSymbol(SymbolType symbol)
@@ -61,9 +54,7 @@ public class Cell : MonoBehaviour, IInitializable
         {
             return;
         }
-        
-        SetSymbol(_gameManager.ActivePlayer.Symbol);
-        _eventService.Invoke(EventName.MoveMade);
+        _eventService.Invoke(EventName.MoveMade, this);
     }
 
     private void BlockMouseClick()

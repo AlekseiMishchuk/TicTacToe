@@ -9,10 +9,11 @@ namespace Installers
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<EventService>().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<GameManager>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<GameCoordinator>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<UIService>().FromInstance(_uiService).AsSingle();
-            Container.Bind<SceneService>().AsSingle();
             Container.BindInterfacesAndSelfTo<SaveLoadService>().AsSingle();
+            Container.Bind<SceneService>().AsSingle();
+            
             Container.Bind<Player>().AsTransient();
         }
     }
