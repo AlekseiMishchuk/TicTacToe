@@ -4,7 +4,7 @@ using Interfaces;
 using UnityEngine;
 using Zenject;
 
-public class GameManager : IInitializable
+public class GameCoordinator : IInitializable
 {
     private readonly EventService _eventService;
     private readonly SaveLoadService _saveLoadService;
@@ -18,7 +18,7 @@ public class GameManager : IInitializable
     private const string HasSavedData = "saved";
 
     [Inject]
-    public GameManager(
+    public GameCoordinator(
         Player player1, 
         Player player2, 
         IBoard board, 
@@ -60,8 +60,14 @@ public class GameManager : IInitializable
             ActivePlayer = _player1;
         }
         
-        _eventService.AddListener(EventName.MoveMade, CheckGameOver);
+        _eventService.AddListener<Cell>(EventName.MoveMade, SetCellSymbol);
         _eventService.AddListener(EventName.StartNewGame, StartNewGame);
+    }
+
+    private void SetCellSymbol(Cell cell)
+    {
+        cell.SetSymbol(ActivePlayer.Symbol);
+        CheckGameOver();
     }
  
     private void CheckGameOver()
