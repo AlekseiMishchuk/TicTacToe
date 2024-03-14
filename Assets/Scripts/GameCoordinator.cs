@@ -13,7 +13,7 @@ public class GameCoordinator : IInitializable
     private readonly Player _player1;
     private readonly Player _player2;
 
-    public Player ActivePlayer { get; private set; }
+    private Player _activePlayer; 
     
     private const string HasSavedData = "saved";
 
@@ -44,7 +44,7 @@ public class GameCoordinator : IInitializable
             try
             {
                 var lastPlayerSymbol = _saveLoadService.LoadBoardState(_board);
-                ActivePlayer = lastPlayerSymbol == _player1?.Symbol ? _player1 : _player2;
+                _activePlayer = lastPlayerSymbol == _player1?.Symbol ? _player1 : _player2;
             }
             catch (ArgumentNullException e)
             {
@@ -57,7 +57,7 @@ public class GameCoordinator : IInitializable
         }
         else
         {
-            ActivePlayer = _player1;
+            _activePlayer = _player1;
         }
         
         _eventService.AddListener<Cell>(EventName.MoveMade, SetCellSymbol);
@@ -66,13 +66,13 @@ public class GameCoordinator : IInitializable
 
     private void SetCellSymbol(Cell cell)
     {
-        cell.SetSymbol(ActivePlayer.Symbol);
+        cell.SetSymbol(_activePlayer.Symbol);
         CheckGameOver();
     }
  
     private void CheckGameOver()
     {
-        var moveResult = _board.CheckMoveResult(ActivePlayer.Symbol);
+        var moveResult = _board.CheckMoveResult(_activePlayer.Symbol);
         if (moveResult != MoveResult.GameContinues)
         {
             if(moveResult != MoveResult.Draw)
@@ -86,14 +86,14 @@ public class GameCoordinator : IInitializable
         else
         {
             ChangePlayer();
-            _saveLoadService.SaveBoardState(_board, ActivePlayer.Symbol);
+            _saveLoadService.SaveBoardState(_board, _activePlayer.Symbol);
             PlayerPrefs.SetInt(HasSavedData, 1);
         }
     }
     
     private void ChangePlayer()
     {
-        ActivePlayer = ActivePlayer == _player1 ? _player2 : _player1;
+        _activePlayer = _activePlayer == _player1 ? _player2 : _player1;
     }
 
     private void StartNewGame()
