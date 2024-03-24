@@ -1,31 +1,50 @@
-using System;
 using System.Collections.Generic;
 using Enums;
 using Interfaces;
+using Signals;
 using UnityEngine;
 using Zenject;
 
 public class Board : MonoBehaviour, IBoard
 {
-    private List<Cell> _finalWinCombination;
+    [SerializeField] private Cell[] _cells;
 
-    public Cell[,] Cells { get; private set; }
+    private SignalBus _signalBus;
+    private List<ICell> _finalWinCombination;
+
+    public ICell[,] Cells { get; private set; }
 
     private const int BoardSize = 3;
 
     [Inject]
-    public void Construct(Cell[] cells)
+    public void Construct(SignalBus signalBus)
     {
-        Cells = new Cell[BoardSize, BoardSize];
+        _signalBus = signalBus;
+    }
+    
+    public void Initialize()
+    {
+        Cells = new ICell[BoardSize, BoardSize];
         var index = 0;
         for (var i = 0; i < Cells.GetLength(0); i++)
         {
             for (var j = 0; j < Cells.GetLength(1); j++)
             {
-                Cells[i, j] = cells[index];
+                Cells[i, j] = _cells[index];
                 index++;
             }
-        }  
+        }
+        InitializeAllCells();
+        
+        _signalBus.Subscribe<GameOverSignal>(BlockAllCells);
+    }
+
+    private void InitializeAllCells()
+    {
+        foreach (var cell in Cells)
+        {
+            cell.Initialize();
+        }
     }
     
     public void Clear()
@@ -63,7 +82,7 @@ public class Board : MonoBehaviour, IBoard
         {
             var isRowMatching = true;
             var isColumnMatching = true;
-            var winCombination = new List<Cell>();
+            var winCombination = new List<ICell>();
             
             for (var j = 0; j < BoardSize; j++)
             {
@@ -98,8 +117,8 @@ public class Board : MonoBehaviour, IBoard
     {
         var isPrimaryMatching = true;
         var isCounterMatching = true;
-        var primaryCombination = new List<Cell>();
-        var counterCombination = new List<Cell>();
+        var primaryCombination = new List<ICell>();
+        var counterCombination = new List<ICell>();
 
         for (var i = 0; i < BoardSize; i++)
         {
@@ -129,6 +148,13 @@ public class Board : MonoBehaviour, IBoard
         return true;
     }
 
+    private void BlockAllCells()
+    {
+        foreach (var cell in _cells)
+        {
+            cell.BlockMouseClick();
+        }
+    }
     
     public void HighlightWinCombination()
     {

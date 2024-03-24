@@ -1,24 +1,30 @@
 using Enums;
+using Interfaces;
+using Signals;
 using UnityEngine;
 using Zenject;
 
-public class Cell : MonoBehaviour
+public class Cell : MonoBehaviour, ICell
 {
     [SerializeField] private Sprite _crossSprite;
     [SerializeField] private Sprite _circleSprite;
     [SerializeField] private SpriteRenderer _background;
     [SerializeField] private Color _highlightColor;
 
-    private EventService _eventService;
+    private SignalBus _signalBus;
     public SymbolType Symbol { get; private set; }
 
     [Inject]
-    public void Construct( EventService eventService)
+    public void Construct(SignalBus signalBus)
     {
-        _eventService = eventService;
-        _eventService.AddListener(EventName.GameOver, BlockMouseClick);
+        _signalBus = signalBus;
     }
 
+    public void Initialize()
+    {
+        _signalBus.Subscribe<GameOverSignal>(BlockMouseClick);
+    }
+    
     public void SetSymbol(SymbolType symbol)
     {
         Symbol = symbol;
@@ -54,10 +60,10 @@ public class Cell : MonoBehaviour
         {
             return;
         }
-        _eventService.Invoke(EventName.MoveMade, this);
+        _signalBus.Fire(new MoveMadeSignal() {Cell = this});
     }
 
-    private void BlockMouseClick()
+    public void BlockMouseClick()
     {
         GetComponent<BoxCollider2D>().enabled = false;
     }

@@ -1,12 +1,13 @@
 using System;
 using Enums;
 using Interfaces;
+using Signals;
 using UnityEngine;
 using Zenject;
 
 public class GameCoordinator : IInitializable
 {
-    private readonly EventService _eventService;
+    private readonly SignalBus _signalBus;
     private readonly SaveLoadService _saveLoadService;
     private readonly SceneService _sceneService;
     private readonly IBoard _board;
@@ -22,22 +23,23 @@ public class GameCoordinator : IInitializable
         Player player1, 
         Player player2, 
         IBoard board, 
-        EventService eventService, 
         SaveLoadService saveLoadService,
-        SceneService sceneService)
+        SceneService sceneService,
+        SignalBus signalBus)
     {
         _board = board;
         _player1 = player1;
         _player2 = player2;
-        _eventService = eventService;
         _saveLoadService = saveLoadService;
         _sceneService = sceneService;
+        _signalBus = signalBus;
     }
     
     public void Initialize()
     {
-        _player1?.Initialization(SymbolType.Cross);
-        _player2?.Initialization(SymbolType.Circle);
+        _player1?.Initialize(SymbolType.Cross);
+        _player2?.Initialize(SymbolType.Circle);
+        _board.Initialize();
         
         if (PlayerPrefs.HasKey(HasSavedData))
         {
@@ -60,11 +62,11 @@ public class GameCoordinator : IInitializable
             _activePlayer = _player1;
         }
         
-        _eventService.AddListener<Cell>(EventName.MoveMade, SetCellSymbol);
-        _eventService.AddListener(EventName.StartNewGame, StartNewGame);
+        _signalBus.Subscribe<MoveMadeSignal>(x => SetCellSymbol(x.Cell));
+        _signalBus.Subscribe<StartNewGameSignal>(StartNewGame);
     }
 
-    private void SetCellSymbol(Cell cell)
+    private void SetCellSymbol(ICell cell)
     {
         cell.SetSymbol(_activePlayer.Symbol);
         CheckGameOver();
@@ -79,8 +81,7 @@ public class GameCoordinator : IInitializable
             {
                 _board.HighlightWinCombination();
             }
-            _eventService.Invoke(EventName.GameOver);
-            _eventService.Invoke(EventName.GameOver, moveResult);
+            _signalBus.Fire(new GameOverSignal() {MoveResult = moveResult});
             PlayerPrefs.DeleteKey(HasSavedData);
         }
         else
@@ -99,7 +100,7 @@ public class GameCoordinator : IInitializable
     private void StartNewGame()
     {
         PlayerPrefs.DeleteAll();
-        _sceneService.ReloadScene();
+        SceneService.ReloadScene();
     }
 
 }

@@ -1,3 +1,4 @@
+using Signals;
 using UnityEngine;
 using Zenject;
 
@@ -8,13 +9,25 @@ namespace Installers
         [SerializeField] private UIService _uiService;
         public override void InstallBindings()
         {
-            Container.BindInterfacesAndSelfTo<EventService>().AsSingle().NonLazy();
+            InstallServices();
+            InstallSignals();
+            Container.Bind<Player>().AsTransient();
+        }
+
+        private void InstallServices()
+        {
             Container.BindInterfacesAndSelfTo<GameCoordinator>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<UIService>().FromInstance(_uiService).AsSingle();
             Container.BindInterfacesAndSelfTo<SaveLoadService>().AsSingle();
-            Container.Bind<SceneService>().AsSingle();
-            
-            Container.Bind<Player>().AsTransient();
+            Container.Bind<SceneService>().AsSingle();    
+        }
+
+        private void InstallSignals()
+        {
+            SignalBusInstaller.Install(Container);
+            Container.DeclareSignal<MoveMadeSignal>();
+            Container.DeclareSignal<StartNewGameSignal>();
+            Container.DeclareSignal<GameOverSignal>();
         }
     }
 }

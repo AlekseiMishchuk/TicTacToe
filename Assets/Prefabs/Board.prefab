@@ -255,7 +255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5360b491bb554d89b879129491f39124, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cellList:
+  _cells:
   - {fileID: 5221682405238255002}
   - {fileID: 8506081935078664705}
   - {fileID: 8506081933909096343}
@@ -318,7 +318,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_Name
-      value: Cell
+      value: Cell_0.0
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_IsActive
@@ -395,7 +395,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_Name
-      value: Cell (7)
+      value: Cell_2.1
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_IsActive
@@ -472,7 +472,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_Name
-      value: Cell (1)
+      value: Cell_0.1
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_IsActive
@@ -549,7 +549,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_Name
-      value: Cell (8)
+      value: Cell_2.2
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_IsActive
@@ -626,7 +626,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_Name
-      value: Cell (6)
+      value: Cell_2.0
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_IsActive
@@ -703,7 +703,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_Name
-      value: Cell (5)
+      value: Cell_1.2
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_IsActive
@@ -780,7 +780,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_Name
-      value: Cell (4)
+      value: Cell_1.1
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_IsActive
@@ -857,7 +857,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_Name
-      value: Cell (2)
+      value: Cell_0.2
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_IsActive
@@ -934,7 +934,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_Name
-      value: Cell (3)
+      value: Cell_1.0
       objectReference: {fileID: 0}
     - target: {fileID: 7764857549911436624, guid: cfc7d0c1b5b804d7baaa8646e2df9fa8, type: 3}
       propertyPath: m_IsActive

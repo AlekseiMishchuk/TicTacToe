@@ -1,4 +1,5 @@
 using Enums;
+using Signals;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,22 +12,22 @@ public class UIService : MonoBehaviour, IInitializable
     [SerializeField] private Button _startNewGameButton;
     [SerializeField] private Button _popupNewGameButton;
 
-    private EventService _eventService;
+    private SignalBus _signalBus;
 
     [Inject]
-    public void Construct(EventService eventService)
+    public void Construct(SignalBus signalBus)
     {
-        _eventService = eventService;
+        _signalBus = signalBus;
     }
     
     public void Initialize()
     {
-        _eventService.AddListener<MoveResult>(EventName.GameOver, GameOver);
+        _signalBus.Subscribe<GameOverSignal>(x => GameOver(x.MoveResult));
         _startNewGameButton.onClick.AddListener(StartNewGame); 
         _popupNewGameButton.onClick.AddListener(ClosePopupAndRestart);
     }
     
-    private void GameOver(MoveResult whoWins)
+    public void GameOver(MoveResult whoWins)
     {
         _finalPopup.SetActive(true);
         switch (whoWins)
@@ -52,6 +53,6 @@ public class UIService : MonoBehaviour, IInitializable
     
     private void StartNewGame()
     {
-        _eventService.Invoke(EventName.StartNewGame);
+        _signalBus.Fire<StartNewGameSignal>();
     }
 }

@@ -4,7 +4,7 @@ public class Player
 {
     public SymbolType Symbol { get; private set;}
 
-    public void Initialization(SymbolType symbol)
+    public void Initialize(SymbolType symbol)
     {
         Symbol = symbol;
     }
