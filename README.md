@@ -29,7 +29,7 @@ Each player takes turns pressing cells until one of them forms a line of 3 symbo
 
 ## Roadmap
 
-- [ ] Change custom EventService to Zenject's Signals
+- [x] Change custom EventService to Zenject's Signals
 - [ ] Visual rework
 
 
