@@ -5,7 +5,7 @@ using Signals;
 using UnityEngine;
 using Zenject;
 
-public class GameCoordinator : IInitializable
+public class GameCoordinator : IInitializable, IDisposable
 {
     private readonly SignalBus _signalBus;
     private readonly DataStorageService _dataStorageService;
@@ -125,4 +125,10 @@ public class GameCoordinator : IInitializable
         _sceneService.ReloadScene();
     }
 
+    public void Dispose()
+    {
+        _signalBus.TryUnsubscribe<MoveMadeSignal>(x => SetCellSymbol(x.Cell));
+        _signalBus.TryUnsubscribe<StartNewGameSignal>(StartNewGame);
+        _signalBus.LateDispose();
+    }
 }

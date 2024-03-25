@@ -1,3 +1,4 @@
+using System;
 using Enums;
 using Signals;
 using TMPro;
@@ -5,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-public class UIService : MonoBehaviour, IInitializable
+public class UIService : MonoBehaviour, IInitializable , IDisposable
 {
     [SerializeField] private TMP_Text _resultText;
     [SerializeField] private GameObject _finalPopup;
@@ -54,5 +55,13 @@ public class UIService : MonoBehaviour, IInitializable
     private void StartNewGame()
     {
         _signalBus.Fire<StartNewGameSignal>();
+    }
+
+    public void Dispose()
+    {
+        _signalBus.TryUnsubscribe<GameOverSignal>(x => GameOver(x.MoveResult));
+        _startNewGameButton.onClick.RemoveAllListeners();
+        _popupNewGameButton.onClick.RemoveAllListeners();
+        _signalBus.LateDispose();
     }
 }

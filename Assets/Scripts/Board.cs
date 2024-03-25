@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Enums;
 using Interfaces;
@@ -34,19 +35,10 @@ public class Board : MonoBehaviour, IBoard
                 index++;
             }
         }
-        InitializeAllCells();
         
         _signalBus.Subscribe<GameOverSignal>(BlockAllCells);
     }
 
-    private void InitializeAllCells()
-    {
-        foreach (var cell in Cells)
-        {
-            cell.Initialize();
-        }
-    }
-    
     public void ClearAllCells()
     {
         foreach (var cell in Cells)

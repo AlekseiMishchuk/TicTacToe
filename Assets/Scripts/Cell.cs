@@ -20,11 +20,6 @@ public class Cell : MonoBehaviour, ICell
         _signalBus = signalBus;
     }
 
-    public void Initialize()
-    {
-        _signalBus.Subscribe<GameOverSignal>(BlockMouseClick);
-    }
-    
     public void SetSymbol(SymbolType symbol)
     {
         Symbol = symbol;

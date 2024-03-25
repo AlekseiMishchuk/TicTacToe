@@ -6,7 +6,6 @@ namespace Interfaces
     {
         SymbolType Symbol { get; }
 
-        void Initialize();
         void SetSymbol(SymbolType symbol);
         void Clear();
         void Highlight();
