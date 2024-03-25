@@ -53,6 +53,11 @@ public class Cell : MonoBehaviour, ICell
     {
         _background.color = _highlightColor;
     }
+    
+    public void BlockMouseClick()
+    {
+        GetComponent<BoxCollider2D>().enabled = false;
+    }
 
     private void OnMouseDown()
     {
@@ -61,10 +66,5 @@ public class Cell : MonoBehaviour, ICell
             return;
         }
         _signalBus.Fire(new MoveMadeSignal() {Cell = this});
-    }
-
-    public void BlockMouseClick()
-    {
-        GetComponent<BoxCollider2D>().enabled = false;
     }
 }

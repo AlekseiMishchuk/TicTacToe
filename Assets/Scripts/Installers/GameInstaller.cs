@@ -1,3 +1,4 @@
+using Interfaces;
 using Signals;
 using UnityEngine;
 using Zenject;
@@ -18,6 +19,10 @@ namespace Installers
         {
             Container.BindInterfacesAndSelfTo<GameCoordinator>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<UIService>().FromInstance(_uiService).AsSingle();
+            
+            Container.Bind<IDataStorage>().To<PlayerPrefsWrapper>().AsSingle();
+            Container.BindInterfacesAndSelfTo<DataStorageService>().AsSingle();
+            
             Container.BindInterfacesAndSelfTo<SaveLoadService>().AsSingle();
             Container.Bind<SceneService>().AsSingle();    
         }

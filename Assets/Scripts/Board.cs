@@ -47,7 +47,7 @@ public class Board : MonoBehaviour, IBoard
         }
     }
     
-    public void Clear()
+    public void ClearAllCells()
     {
         foreach (var cell in Cells)
         {
@@ -68,7 +68,7 @@ public class Board : MonoBehaviour, IBoard
             }
         }
         
-        if (CheckLines(symbol) || CheckDiagonal(symbol))
+        if (CheckRowsAndColumns(symbol) || CheckDiagonal(symbol))
         {
             return symbol == SymbolType.Cross ? MoveResult.CrossesWin : MoveResult.CirclesWin;
         }
@@ -76,7 +76,7 @@ public class Board : MonoBehaviour, IBoard
         return !haveEmptyCells ? MoveResult.Draw : MoveResult.GameContinues;
     }
 
-    private bool CheckLines(SymbolType symbol)
+    private bool CheckRowsAndColumns(SymbolType symbol)
     {
         for (var i = 0; i < BoardSize; i++)
         {

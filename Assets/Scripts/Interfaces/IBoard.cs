@@ -7,7 +7,7 @@ namespace Interfaces
         ICell[,] Cells { get; }
 
         void Initialize();
-        void Clear();
+        void ClearAllCells();
         MoveResult CheckMoveResult(SymbolType symbol);
         void HighlightWinCombination();
     }

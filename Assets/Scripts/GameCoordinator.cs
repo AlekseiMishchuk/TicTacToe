@@ -8,6 +8,7 @@ using Zenject;
 public class GameCoordinator : IInitializable
 {
     private readonly SignalBus _signalBus;
+    private readonly DataStorageService _dataStorageService;
     private readonly SaveLoadService _saveLoadService;
     private readonly SceneService _sceneService;
     private readonly IBoard _board;
@@ -22,14 +23,16 @@ public class GameCoordinator : IInitializable
     public GameCoordinator(
         Player player1, 
         Player player2, 
-        IBoard board, 
+        IBoard board,
+        DataStorageService dataStorageService,
         SaveLoadService saveLoadService,
         SceneService sceneService,
         SignalBus signalBus)
     {
-        _board = board;
         _player1 = player1;
         _player2 = player2;
+        _board = board;
+        _dataStorageService = dataStorageService;
         _saveLoadService = saveLoadService;
         _sceneService = sceneService;
         _signalBus = signalBus;
@@ -41,21 +44,9 @@ public class GameCoordinator : IInitializable
         _player2?.Initialize(SymbolType.Circle);
         _board.Initialize();
         
-        if (PlayerPrefs.HasKey(HasSavedData))
+        if (_dataStorageService.HasKey(HasSavedData))
         {
-            try
-            {
-                var lastPlayerSymbol = _saveLoadService.LoadBoardState(_board);
-                _activePlayer = lastPlayerSymbol == _player1?.Symbol ? _player1 : _player2;
-            }
-            catch (ArgumentNullException e)
-            {
-                Debug.LogError(e.Message);
-            }
-            catch (AggregateException e)
-            {
-                Debug.LogError(e.Message);
-            }
+            LoadSavedData();
         }
         else
         {
@@ -64,6 +55,27 @@ public class GameCoordinator : IInitializable
         
         _signalBus.Subscribe<MoveMadeSignal>(x => SetCellSymbol(x.Cell));
         _signalBus.Subscribe<StartNewGameSignal>(StartNewGame);
+    }
+
+    private void LoadSavedData()
+    {
+        try
+        {
+            var lastPlayerSymbol = _saveLoadService.LoadBoardState(_board);
+            _activePlayer = lastPlayerSymbol == _player1?.Symbol ? _player1 : _player2;
+        }
+        catch (ArgumentNullException e)
+        {
+            Debug.LogError(e.Message);
+        }
+        catch (AggregateException e)
+        {
+            Debug.LogError(e.Message);
+        }
+        finally
+        {
+            _dataStorageService.DeleteAll();
+        }
     }
 
     private void SetCellSymbol(ICell cell)
@@ -81,17 +93,27 @@ public class GameCoordinator : IInitializable
             {
                 _board.HighlightWinCombination();
             }
-            _signalBus.Fire(new GameOverSignal() {MoveResult = moveResult});
-            PlayerPrefs.DeleteKey(HasSavedData);
+            GameOver(moveResult);
         }
         else
         {
-            ChangePlayer();
-            _saveLoadService.SaveBoardState(_board, _activePlayer.Symbol);
-            PlayerPrefs.SetInt(HasSavedData, 1);
+            GameContinues();
         }
     }
-    
+
+    private void GameContinues()
+    {
+        ChangePlayer();
+        _saveLoadService.SaveBoardState(_board, _activePlayer.Symbol);
+        _dataStorageService.SetInt(HasSavedData, 1);
+    }
+
+    private void GameOver(MoveResult moveResult)
+    {
+        _signalBus.Fire(new GameOverSignal() {MoveResult = moveResult});
+        _dataStorageService.DeleteKey(HasSavedData);
+    }
+
     private void ChangePlayer()
     {
         _activePlayer = _activePlayer == _player1 ? _player2 : _player1;
@@ -99,8 +121,8 @@ public class GameCoordinator : IInitializable
 
     private void StartNewGame()
     {
-        PlayerPrefs.DeleteAll();
-        SceneService.ReloadScene();
+        _dataStorageService.DeleteAll();
+        _sceneService.ReloadScene();
     }
 
 }

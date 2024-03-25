@@ -3,11 +3,20 @@ using System.Text;
 using Enums;
 using Interfaces;
 using UnityEngine;
+using Zenject;
 
 public class SaveLoadService
 {
+    private readonly DataStorageService _dataStorageService;
+    
     private const string BoardStateKey = "boardState";
     private const string LastPlayerKey = "lastPlayerSymbol";
+
+    [Inject]
+    public SaveLoadService(DataStorageService dataStorageService)
+    {
+        _dataStorageService = dataStorageService;
+    }
     public void SaveBoardState(IBoard board, SymbolType playerSymbol)
     {
         var cells = board.Cells; 
@@ -33,18 +42,18 @@ public class SaveLoadService
             }
         }
         
-        PlayerPrefs.SetString(BoardStateKey, boardAsString.ToString());
-        PlayerPrefs.SetInt(LastPlayerKey, (int)playerSymbol);
+        _dataStorageService.SetString(BoardStateKey, boardAsString.ToString());
+        _dataStorageService.SetInt(LastPlayerKey, (int)playerSymbol);
     }
 
     public SymbolType LoadBoardState(IBoard board)
     {
-        var boardAsString = PlayerPrefs.GetString(BoardStateKey);
+        var boardAsString = _dataStorageService.GetString(BoardStateKey);
         
         if (string.IsNullOrEmpty(boardAsString))
         {
             Debug.LogError($"{BoardStateKey} has no value");
-            throw new ArgumentNullException($"PlayerPrefs {BoardStateKey} has no value");
+            throw new ArgumentNullException($"_dataStorageService {BoardStateKey} has no value");
         }
         
         var boardRows = boardAsString.Split(';');
@@ -65,8 +74,7 @@ public class SaveLoadService
                 }
             }
         }
-        var lastPlayerSymbol = (SymbolType)PlayerPrefs.GetInt(LastPlayerKey);
-        PlayerPrefs.DeleteAll();
-        return lastPlayerSymbol;
+        
+        return (SymbolType)_dataStorageService.GetInt(LastPlayerKey);
     }
 }
